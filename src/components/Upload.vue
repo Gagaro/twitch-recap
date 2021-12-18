@@ -1,0 +1,85 @@
+<template>
+  <div
+    class="flex flex-col"
+  >
+    <input
+      ref="csvFilesInput"
+      class="hidden"
+      name="csvFiles"
+      type="file"
+      @change="handleFiles($event.target.files)"
+      multiple
+    />
+
+    <div
+        class="py-16 mt-8 text-center bg-tertiary text-primary cursor-pointer"
+        :class="{'bg-indigo-100': isFileOnDrop, '': !isFileOnDrop}"
+        @drop.prevent.stop="onFileDrop"
+        @dragenter.prevent.stop="isFileOnDrop = true"
+        @dragstart.prevent.stop="isFileOnDrop = true"
+        @dragover.prevent.stop="isFileOnDrop = true"
+        @dragleave.prevent.stop="isFileOnDrop = false"
+        @dragend.prevent.stop="isFileOnDrop = false"
+        @drag.prevent.stop
+        @click="openFileDialog"
+    >
+      Drop your CSVs or <span class="underline">click</span> here to start.
+    </div>
+
+    <p class="text-red-700" v-for="error in errors">{{ error }}</p>
+
+  </div>
+</template>
+
+<script lang="ts">
+import {defineComponent} from "vue";
+import Papa from "papaparse";
+
+export default defineComponent({
+  name: "Upload",
+  components: {
+  },
+  emits: ['minutesData', 'chatsData'],
+  data() {
+    return {
+      errors: [] as string[],
+      isFileOnDrop: false,
+    };
+  },
+  methods: {
+    openFileDialog() {
+      (this.$refs.csvFilesInput as HTMLInputElement).click();
+    },
+    onFileDrop(event: InputEvent) {
+      this.isFileOnDrop = false;
+      if (event.dataTransfer && event.dataTransfer.files.length > 0) {
+        this.handleFiles(event.dataTransfer.files);
+      }
+    },
+    handleFiles(files: FileList) {
+      for (const file of Array.from(files)) {
+        if (file.name.endsWith('minutes_watched.csv')) {
+          this.parseFile(file, 'minutesData');
+        } else if (file.name.endsWith('chats_cheers_sub_notifications.csv')) {
+          this.parseFile(file, 'chatsData');
+        }
+      }
+    },
+    parseFile(file: File, event: "minutesData" | "chatsData") {
+      const component = this;
+      Papa.parse(file, {
+        worker: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: (results: {data: Array<Object>}) => {
+          if (event === "chatsData") {
+            component.$emit(event, results.data).filter(row => row.event_type === 'chat');
+          } else {
+            component.$emit(event, results.data);
+          }
+        }
+      });
+    }
+  },
+});
+</script>
