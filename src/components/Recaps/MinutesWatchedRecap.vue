@@ -16,22 +16,30 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import {defineComponent, PropType} from "vue";
+import {MinutesData} from "@/interfaces";
 
 export default defineComponent({
   name: "MinutesWatchedRecap",
   components: {
   },
   props: {
-    year: Number,
-    minutesData: Array | null,
+    year: {
+      type: Number,
+      required: true,
+    },
+    minutesData: {
+      type: Array as PropType<MinutesData[]>,
+      required: false,
+    },
   },
   computed: {
-    totalMinutesByStreamer(): Array {
-      if (this.minutesData === null) {
-        return null;
+    totalMinutesByStreamer(): [string, number][] {
+      if (this.minutesData === undefined) {
+        return [];
       }
-      const totalMinutes = {}, year = this.year.toString();
+      const totalMinutes: {[key: string]: number} = {},
+          year = this.year.toString();
       for (const minutes of this.minutesData) {
         if (minutes.day.startsWith(year)) {
           if (!(minutes.channel_name in totalMinutes)) {
@@ -49,7 +57,7 @@ export default defineComponent({
       minutes = minutes % 60;
 
       if (hours > 0) {
-        return `${hours}h${minutes}m`;
+        return `${hours}h${minutes.toString().padStart(2, '0')}m`;
       }
       return `${minutes}m`;
     },

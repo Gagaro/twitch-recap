@@ -48,16 +48,16 @@ export default defineComponent({
   },
   data() {
     return {
-      minutesData: null,
-      chatsData: null,
+      minutesData: undefined,
+      chatsData: undefined,
       currentYear: 2021,
     };
   },
   computed: {
-    years() {
+    years(): number[] {
       return [2021, 2020, 2019, 2018, 2017, 2016];
     },
-    hasData() {
+    hasData(): boolean {
       return !!this.minutesData || !!this.chatsData;
     },
   },

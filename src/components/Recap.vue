@@ -17,9 +17,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import {defineComponent, PropType} from "vue";
 import MinutesWatchedRecap from "./Recaps/MinutesWatchedRecap.vue";
 import ChatMessagesRecap from "./Recaps/ChatMessagesRecap.vue";
+import {ChatData, MinutesData} from "@/interfaces";
 
 export default defineComponent({
   name: "Recap",
@@ -28,9 +29,18 @@ export default defineComponent({
     ChatMessagesRecap,
   },
   props: {
-    year: Number,
-    minutesData: Array | null,
-    chatsData: Array | null,
+    year: {
+      type: Number,
+      required: true,
+    },
+    minutesData: {
+      type: Array as PropType<MinutesData[]>,
+      required: false,
+    },
+    chatsData: {
+      type: Array as PropType<ChatData[]>,
+      required: false,
+    },
   },
   computed: {
   },

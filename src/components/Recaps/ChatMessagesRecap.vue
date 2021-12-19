@@ -13,19 +13,30 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import {defineComponent, PropType} from "vue";
+import {ChatData} from "@/interfaces";
 
 export default defineComponent({
   name: "ChatMessagesRecap",
   components: {
   },
   props: {
-    year: Number,
-    chatsData: Array | null,
+    year: {
+      type: Number,
+      required: true,
+    },
+    chatsData: {
+      type: Array as PropType<ChatData[]>,
+      required: false,
+    },
   },
   computed: {
-    messagesSentByStreamer(): Array {
-      const messages = {}, year = this.year.toString();
+    messagesSentByStreamer(): [string, number][] {
+      if (this.chatsData === undefined) {
+        return [];
+      }
+      const messages: {[key: string]: number} = {},
+          year = this.year.toString();
       for (const chat of this.chatsData) {
         if (chat.day.startsWith(year)) {
           if (!(chat.channel in messages)) {

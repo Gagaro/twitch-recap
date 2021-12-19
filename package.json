@@ -12,7 +12,7 @@
   "license": "GPL-3.0-only",
   "dependencies": {
     "papaparse": "^5.3.1",
-    "plotly.js-dist": "^2.8.1",
+    "plotly.js": "^2.8.1",
     "vue": "^3.2.25"
   },
   "devDependencies": {

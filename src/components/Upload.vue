@@ -7,7 +7,7 @@
       class="hidden"
       name="csvFiles"
       type="file"
-      @change="handleFiles($event.target.files)"
+      @change="onInputChange"
       multiple
     />
 
@@ -34,6 +34,7 @@
 <script lang="ts">
 import {defineComponent} from "vue";
 import Papa from "papaparse";
+import {ChatData} from "@/interfaces";
 
 export default defineComponent({
   name: "Upload",
@@ -50,7 +51,13 @@ export default defineComponent({
     openFileDialog() {
       (this.$refs.csvFilesInput as HTMLInputElement).click();
     },
-    onFileDrop(event: InputEvent) {
+    onInputChange(event: Event) {
+      const files = (event.target as HTMLInputElement)?.files;
+      if (!!files) {
+        this.handleFiles(files);
+      }
+    },
+    onFileDrop(event: InputEvent | DragEvent) {
       this.isFileOnDrop = false;
       if (event.dataTransfer && event.dataTransfer.files.length > 0) {
         this.handleFiles(event.dataTransfer.files);
@@ -71,9 +78,9 @@ export default defineComponent({
         worker: true,
         header: true,
         skipEmptyLines: true,
-        complete: (results: {data: Array<Object>}) => {
+        complete: (results: {data: ChatData[]}) => {
           if (event === "chatsData") {
-            component.$emit(event, results.data).filter(row => row.event_type === 'chat');
+            component.$emit(event, results.data.filter(row => row.event_type === 'chat'));
           } else {
             component.$emit(event, results.data);
           }

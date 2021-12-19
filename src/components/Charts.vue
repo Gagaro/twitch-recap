@@ -5,17 +5,27 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import Plotly from "plotly.js-dist";
+import {defineComponent, PropType} from "vue";
+import Plotly from "plotly.js";
+import {ChatData, MinutesData} from "@/interfaces";
 
 export default defineComponent({
   name: "Charts",
   components: {
   },
   props: {
-    year: Number,
-    minutesData: Array | null,
-    chatsData: Array | null,
+    year: {
+      type: Number,
+      required: true,
+    },
+    minutesData: {
+      type: Array as PropType<MinutesData[]>,
+      required: false,
+    },
+    chatsData: {
+      type: Array as PropType<ChatData[]>,
+      required: false,
+    },
   },
   mounted() {
     this.updateMinutesPlots();
@@ -29,11 +39,15 @@ export default defineComponent({
     },
   },
   methods: {
-    updateMinutesPlots() {
-      if (this.minutesData === null) {
-        return [];
+    updateMinutesPlots(): void {
+      if (this.minutesData === undefined) {
+        return ;
       }
-      const minutesWatched = {}, year = this.year.toString();
+      const minutesWatched: {
+        [key: string]: {
+          [key: string]: number
+        }
+      } = {}, year = this.year.toString();
 
       for (const minutes of this.minutesData) {
         if (minutes.day.startsWith(year)) {
@@ -47,17 +61,19 @@ export default defineComponent({
         }
       }
       const data = Object.entries(minutesWatched)
-          .map(([streamer, minutesDays]) => ({
+          .map(([streamer, minutesDays]: [string, {[key: string]: number}]) => ({
             x: Object.keys(minutesDays),
             y: Object.values(minutesDays),
             hovertemplate: "<b>%{y}</b> minutes<br><b>%{x}</b>",
             customdata: {
-              total: Object.values(minutesDays).reduce((a, b) => a + b, 0),
+              total: Object.values(minutesDays).reduce((a: number, b: number) => a + b, 0),
             },
             name: streamer,
             type: 'bar'
          })
-      ).sort((streamerA, streamerB) => streamerA.customdata.total - streamerB.customdata.total).slice(-10);
+      ).sort((streamerA, streamerB) => (
+        streamerA.customdata.total as number) - (streamerB.customdata.total as number)
+      ).slice(-10);
 
       const layout = {
         title: 'Top 10 Streamer Watched Time',
@@ -71,7 +87,13 @@ export default defineComponent({
         barmode: 'stack',
         paper_bgcolor: 'rgba(0,0,0,0)',
       };
-      Plotly.newPlot(this.$refs['minutesChart'], data, layout, {displayModeBar: false});
+      Plotly.newPlot(
+          //@ts-ignore
+          this.$refs['minutesChart'],
+          data,
+          layout,
+          {displayModeBar: false}
+      );
     }
   }
 });
