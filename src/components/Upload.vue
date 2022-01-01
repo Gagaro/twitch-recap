@@ -65,9 +65,9 @@ export default defineComponent({
     },
     handleFiles(files: FileList) {
       for (const file of Array.from(files)) {
-        if (file.name.endsWith('minutes_watched.csv')) {
+        if (file.name.includes('minutes_watched')) {
           this.parseFile(file, 'minutesData');
-        } else if (file.name.endsWith('chats_cheers_sub_notifications.csv')) {
+        } else if (file.name.includes('chats_cheers_sub_notifications')) {
           this.parseFile(file, 'chatsData');
         }
       }
