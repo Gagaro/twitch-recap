@@ -6,7 +6,7 @@
 
 <script lang="ts">
 import {defineComponent, PropType} from "vue";
-import Plotly from "plotly.js";
+import Plotly from "plotly.js/dist/plotly-basic";
 import {ChatData, MinutesData} from "@/interfaces";
 
 export default defineComponent({
